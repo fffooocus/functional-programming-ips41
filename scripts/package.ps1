@@ -5,7 +5,7 @@ Push-Location $taskRoot
 try {
   git archive --format=zip HEAD --output $Output
   if ($LASTEXITCODE -ne 0) { throw 'Source archive failed' }
-  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  Add-Type -AssemblyName System.IO.Compression,System.IO.Compression.FileSystem
   $taskArchivePath = [System.IO.Path]::GetFullPath((Join-Path $taskRoot $Output))
   $taskArchive = [System.IO.Compression.ZipFile]::Open($taskArchivePath,[System.IO.Compression.ZipArchiveMode]::Update)
   try {
