@@ -97,6 +97,8 @@ export MYSQL_PWD=local-student-password
 
 Програми консольні, тому вебхостинг для виконання завдань не потрібний.
 
+Архів `submission.zip` у [релізі v1.0.0](https://github.com/fffooocus/functional-programming-ips41/releases/tag/v1.0.0) містить цей комплект та скомпільовані Windows x64 програми в `.build`. Для першої роботи також потрібен MySQL; його завантажує `scripts/setup-windows.ps1`. Відтворення архіву після збірки: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1`.
+
 ## Відтворення звітів
 
 PDF та DOCX вже включено. На Windows їх можна повторно сформувати з `labN/report.md`:

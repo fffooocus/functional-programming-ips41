@@ -13,7 +13,7 @@ import qualified Data.Text as T
 
 newtype Character = Character Char deriving (Eq, Show)
 newtype WordToken = WordToken T.Text deriving (Eq, Ord, Show)
-newtype Punctuation = Punctuation T.Text deriving (Eq, Show)
+newtype Punctuation = Punctuation Character deriving (Eq, Show)
 data Element = WordElement WordToken | PunctuationElement Punctuation
   deriving (Eq, Show)
 data Sentence = Sentence { sentenceText :: T.Text, elements :: [Element] }
@@ -37,7 +37,7 @@ tokenize = go . T.unpack
       | isSpace c = go cs
       | isAlpha c = let (word, rest) = takeWord [c] cs
                     in WordElement (WordToken (canonical (T.pack word))) : go rest
-      | otherwise = PunctuationElement (Punctuation (T.singleton c)) : go cs
+      | otherwise = PunctuationElement (Punctuation (Character c)) : go cs
     takeWord acc [] = (reverse acc, [])
     takeWord acc allChars@(c:cs)
       | isAlpha c = takeWord (c:acc) cs

@@ -22,12 +22,12 @@
 
 ## 3. Модель тексту
 
-Використано типи Character, WordToken, Punctuation, Element, Sentence та Document. Character є обгорткою над Char, WordToken — над Text, Punctuation — над Text. Element розрізняє слово й розділовий знак. Sentence зберігає нормалізований текст і список елементів, Document — список речень.
+Використано типи Character, WordToken, Punctuation, Element, Sentence та Document. Character є обгорткою над Char, WordToken — над Text, Punctuation — над Character. Element розрізняє слово й розділовий знак. Sentence зберігає нормалізований текст і список елементів, Document — список речень.
 
 ```haskell
 newtype Character = Character Char
 newtype WordToken = WordToken Text
-newtype Punctuation = Punctuation Text
+newtype Punctuation = Punctuation Character
 data Element = WordElement WordToken
              | PunctuationElement Punctuation
 data Sentence = Sentence

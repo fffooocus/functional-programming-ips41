@@ -47,27 +47,27 @@ $ lab1 stats
 
 $ lab1 add Перевірка ' SQL; -- Тест	табуляції
 та нового рядка 1 1 2026-10-01 -
-Created resource 6
+Created resource 8
 
 $ lab1 search Перевірка ' SQL; --
-6 | Перевірка ' SQL; -- | Документація | 2026-10-01 — безстроково |  | Тест	табуляції
+8 | Перевірка ' SQL; -- | Документація | 2026-10-01 — безстроково |  | Тест	табуляції
 та нового рядка
 
 $ lab1 search ' OR 1=1 --
 
-$ lab1 update 6 Оновлений ресурс Оновлена анотація 2 2 2026-10-01 2027-06-30
+$ lab1 update 8 Оновлений ресурс Оновлена анотація 2 2 2026-10-01 2027-06-30
 Resource updated
 
 $ lab1 search Оновлений ресурс
-6 | Оновлений ресурс | Навчальний посібник | 2026-10-01 — 2027-06-30 |  | Оновлена анотація
+8 | Оновлений ресурс | Навчальний посібник | 2026-10-01 — 2027-06-30 |  | Оновлена анотація
 
-$ lab1 link-author 6 3
+$ lab1 link-author 8 3
 Saved
 
-$ lab1 link-purpose 6 2
+$ lab1 link-purpose 8 2
 Saved
 
-$ lab1 url-add 6 https://example.org/resource
+$ lab1 url-add 8 https://example.org/resource
 Saved
 
 $ lab1 edit authors 3 name Левківський Євгеній Сергійович
@@ -76,16 +76,16 @@ Saved
 $ lab1 edit authors;DROP TABLE users 3 name bad
 Unsupported table or field
 
-$ lab1 grant 6 1
+$ lab1 grant 8 1
 Saved
 
-$ lab1 visit 6 1 90
+$ lab1 visit 8 1 90
 Saved
 
 $ lab1 stats
 1 | Haskell: GHC User Guide | 2 | 1 | 480
 2 | MySQL 8.4 Reference Manual | 1 | 1 | 240
-6 | Оновлений ресурс | 1 | 1 | 90
+8 | Оновлений ресурс | 1 | 1 | 90
 3 | Приклади функціонального програмування | 0 | 0 | 0
 
 $ lab1 add Bad Bad 1 1 2026-02-30 -
@@ -98,7 +98,7 @@ user error (MySQL: ERROR 1452 (23000) at line 2: Cannot add or update a child ro
 $ lab1 update 999999 Missing Missing 1 1 2026-10-01 -
 Resource not found
 
-$ lab1 delete 6
+$ lab1 delete 8
 Resource deleted
 
 $ lab1 search Оновлений ресурс
