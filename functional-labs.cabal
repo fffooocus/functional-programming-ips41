@@ -1,0 +1,37 @@
+cabal-version: 2.4
+name: functional-labs
+version: 1.0.0.0
+build-type: Simple
+synopsis: Three functional programming laboratory works
+author: Левківський Євгеній Сергійович
+
+common shared
+  default-language: Haskell2010
+  ghc-options: -Wall -O2 -threaded -rtsopts
+  build-depends: base >=4.15 && <5, bytestring, containers, text, time,
+                 directory, filepath, process, binary, deepseq, array
+
+executable lab1
+  import: shared
+  hs-source-dirs: lab1/app, lab1/src
+  main-is: Main.hs
+  other-modules: Department
+
+executable lab2
+  import: shared
+  hs-source-dirs: lab2/app, lab2/src
+  main-is: Main.hs
+  other-modules: Huffman, Archive, WorkerPool
+
+executable lab3
+  import: shared
+  hs-source-dirs: lab3/app, lab3/src
+  main-is: Main.hs
+  other-modules: TextAnalysis
+
+test-suite algorithms
+  import: shared
+  type: exitcode-stdio-1.0
+  hs-source-dirs: tests, lab2/src, lab3/src, lab1/src
+  main-is: Main.hs
+  other-modules: Huffman, Archive, WorkerPool, TextAnalysis, Department

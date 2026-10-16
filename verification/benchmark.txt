@@ -1,0 +1,5 @@
+# files=8 bytes=8388608 initial_capabilities=4 repetitions=3
+workers,median_seconds,speedup,efficiency
+1,0.670740,1.0000,1.0000
+2,0.399344,1.6796,0.8398
+4,0.228518,2.9352,0.7338

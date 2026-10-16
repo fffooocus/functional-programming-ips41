@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: local-root-password
+      MYSQL_DATABASE: department_resources
+      MYSQL_USER: department
+      MYSQL_PASSWORD: local-student-password
+    ports:
+      - '127.0.0.1:3307:3306'
+    volumes:
+      - department-data:/var/lib/mysql
+      - ./lab1/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-plocal-root-password']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  labs:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: '3306'
+      MYSQL_USER: department
+      MYSQL_PWD: local-student-password
+    volumes:
+      - ./lab2:/workspace/lab2
+      - ./lab3:/workspace/lab3
+    entrypoint: []
+    command: ['.build/lab1-run', 'list']
+volumes:
+  department-data:

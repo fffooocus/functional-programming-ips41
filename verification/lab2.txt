@@ -1,0 +1,23 @@
+$ lab2 pack 1 <temporary-directory>\one.hfar <temporary-directory>\empty.bin <temporary-directory>\one.bin <temporary-directory>\all-bytes.bin <temporary-directory>\українська.txt +RTS -N1 -RTS
+Packed 4 files using 1 workers.
+
+$ lab2 pack 4 <temporary-directory>\four.hfar <temporary-directory>\empty.bin <temporary-directory>\one.bin <temporary-directory>\all-bytes.bin <temporary-directory>\українська.txt +RTS -N4 -RTS
+Packed 4 files using 4 workers.
+
+$ lab2 list <temporary-directory>\four.hfar
+empty.bin	0 bytes	0 bits
+one.bin	2048 bytes	0 bits
+all-bytes.bin	256 bytes	2048 bits
+українська.txt	60000 bytes	249000 bits
+
+$ lab2 unpack <temporary-directory>\four.hfar <temporary-directory>\restored
+Restored 4 files; CRC32 verified.
+
+$ lab2 unpack <temporary-directory>\four.hfar <temporary-directory>\restored
+lab2.exe: user error (Output already exists: empty.bin)
+
+$ lab2 pack 0 <temporary-directory>\bad.hfar <temporary-directory>\empty.bin <temporary-directory>\one.bin <temporary-directory>\all-bytes.bin <temporary-directory>\українська.txt
+Worker count must be between 1 and 256
+
+$ lab2 unpack <temporary-directory>\corrupt.hfar <temporary-directory>\bad-output
+lab2.exe: user error (CRC32 mismatch)
