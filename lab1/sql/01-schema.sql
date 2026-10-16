@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS department_resources CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE department_resources;
+CREATE DATABASE IF NOT EXISTS faculty_software CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE faculty_software;
 
 CREATE TABLE IF NOT EXISTS authors (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS usage_terms (
 CREATE TABLE IF NOT EXISTS resources (
   id INT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(250) NOT NULL,
+  version VARCHAR(50) NOT NULL,
   annotation TEXT NOT NULL,
   type_id INT NOT NULL,
   terms_id INT NOT NULL,

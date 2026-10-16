@@ -1,43 +1,45 @@
-PASS: Huffman round trip 1
-PASS: Huffman round trip 2
-PASS: Huffman round trip 3
-PASS: Huffman round trip 4
-PASS: Huffman round trip 5
-PASS: Huffman round trip 6
-PASS: Huffman round trip 7
-PASS: Huffman round trip 8
-PASS: CRC32 standard vector
-PASS: Archive serialization
-PASS: Archive empty
-PASS: Archive magic validation
-PASS: Archive truncation
-PASS: Archive trailing data
-PASS: Archive duplicate names
-PASS: Archive case collision
-PASS: Archive path traversal
-PASS: Windows reserved names
-PASS: Checksum corruption detected
-PASS: Duplicate histogram rejected
-PASS: Truncated Huffman payload
-PASS: Parallel compression deterministic
+PASS: Gaussian classic one worker
+PASS: Gaussian classic four workers
+PASS: Pivot row exchange
+PASS: Single equation
+PASS: Equation scaling
+PASS: Generated known solution 1
+PASS: Generated known solution 2
+PASS: Generated known solution 3
+PASS: Generated known solution 5
+PASS: Generated known solution 8
+PASS: Generated known solution 16
+PASS: Generated known solution 32
+PASS: Sequential and parallel agreement
+PASS: Singular system rejected
+PASS: Inconsistent system rejected
+PASS: Empty matrix rejected
+PASS: Non-square matrix rejected
+PASS: Invalid RHS rejected
+PASS: Non-finite matrix rejected
+PASS: Zero solver workers rejected
+PASS: Parse matrix comments
+PASS: Malformed matrix rejected
+PASS: Invalid matrix token rejected
 PASS: Worker result order
 PASS: Worker empty input
 PASS: Worker exceptions propagate
-PASS: Zero workers rejected
-PASS: Count sentences, not word occurrences
+PASS: First sentence unique word
 PASS: Empty text
-PASS: No repeated word
+PASS: No exclusive word
+PASS: First sentence order
+PASS: Deduplicate first sentence
+PASS: Single sentence
 PASS: Punctuation only
 PASS: Case folding
 PASS: Apostrophe normalization
 PASS: Whitespace normalization
-PASS: Decimal point and grouped punctuation
-PASS: Sentence without terminator
-PASS: Unicode word preserved
-PASS: Tied maxima
-PASS: Valid resource
+PASS: Decimal and grouped punctuation
+PASS: Word absent from every later sentence
+PASS: Valid software record
 PASS: Invalid resource date
 PASS: Invalid resource period
 PASS: Blank title rejected
-PASS: SQL literal encodes hostile input
+PASS: Blank version rejected
+PASS: SQL hostile literal encoded
 ALL TESTS PASSED

@@ -1,47 +1,42 @@
-# Лабораторна робота №1
+# Лабораторна робота №1 — завдання 3
 
 **Левківський Євгеній Сергійович · ІПС-41**
 
-Перше завдання: інформаційна система «Інформаційні ресурси кафедри» на Haskell та MySQL. 11 таблиць, пошук, додавання та коригування даних, статистика використання.
+Інформаційна система **«Програмне забезпечення на мережі факультету»**. Haskell, класи типів та instances, MySQL, 11 таблиць.
+
+Зберігаються назва ПО, версія, автори, анотація, вид, термін і умови використання, адреси дистрибутивів, користувачі, популярність і статистика. `Resource` — загальна модель програмного ресурсу, `ResourceDraft` — дані введення.
 
 ```powershell
 node scripts/local.mjs lab1 list
-node scripts/local.mjs lab1 search Haskell
+node scripts/local.mjs lab1 search GHC
 node scripts/local.mjs lab1 catalog
 node scripts/local.mjs lab1 details 1
 node scripts/local.mjs lab1 stats
-node scripts/local.mjs lab1 add "Новий ресурс" "Анотація" 1 1 2026-10-01 -
-node scripts/local.mjs lab1 update 4 "Оновлений ресурс" "Нова анотація" 2 2 2026-10-01 2027-06-30
+node scripts/local.mjs lab1 add "Нова програма" "1.0" "Анотація" 3 2 2026-10-01 -
+node scripts/local.mjs lab1 update 4 "Оновлена програма" "2.0" "Нова анотація" 3 2 2026-10-01 2027-06-30
 node scripts/local.mjs lab1 link-author 4 3
-node scripts/local.mjs lab1 link-purpose 4 2
-node scripts/local.mjs lab1 url-add 4 https://example.org/resource
+node scripts/local.mjs lab1 url-add 4 https://example.org/distribution.zip
 node scripts/local.mjs lab1 grant 4 1
 node scripts/local.mjs lab1 visit 4 1 120
 node scripts/local.mjs lab1 edit authors 3 name "Левківський Євгеній Сергійович"
 ```
 
-Команди запускаються з кореня репозиторію. ID нового ресурсу програма друкує після `add`; у прикладі `4` слід замінити фактичним ID. Звіт: [PDF](report.pdf), [DOCX](report.docx), [Markdown](report.md).
+Команди виконуються з кореня репозиторію. Програма друкує ID після `add`; замість `4` використайте фактичний ID. Звіти: [PDF](report.pdf), [DOCX](report.docx), [Markdown](report.md).
 
-## Класи та екземпляри
-
-`SqlValue` перетворює `Text`, `Int`, `Day`, `Maybe a` на SQL-значення; текст передається як UTF-8 hex literal. `Validatable ResourceDraft` перевіряє назву, довідники й дати. `ResourceStore MySQL` реалізує CRUD та пошук через єдиний інтерфейс.
-
-Haskell відповідає за моделі, правила, формування SQL і інтерфейс. Офіційний клієнт `mysql` є транспортом до реального сервера MySQL; обмін відбувається через stdin/stdout. Пароль береться клієнтом із середовища `MYSQL_PWD`.
-
-## Схема
+`SqlValue` має instances для Text, Int, Day, Maybe a; UTF-8 текст кодується безпечним hex literal. `Validatable ResourceDraft` перевіряє назву, версію та дати. `ResourceStore MySQL` реалізує CRUD і пошук. Офіційний клієнт mysql — транспорт до справжнього сервера; основна логіка написана Haskell.
 
 ```mermaid
 erDiagram
-  resource_types ||--o{ resources : type
-  usage_terms ||--o{ resources : terms
+  resource_types ||--o{ resources : software_type
+  usage_terms ||--o{ resources : conditions
   resources ||--o{ resource_authors : authors
-  authors ||--o{ resource_authors : resources
+  authors ||--o{ resource_authors : software
   resources ||--o{ resource_purposes : purposes
-  purposes ||--o{ resource_purposes : resources
-  resources ||--o{ resource_urls : addresses
+  purposes ||--o{ resource_purposes : software
+  resources ||--o{ resource_urls : distributions
   resources ||--o{ access_grants : access
   users ||--o{ access_grants : users
-  access_grants ||--o{ usage_events : visits
+  access_grants ||--o{ usage_events : launches
 ```
 
-`usage_events` посилається на складений ключ наданого доступу; відвідування без доступу відхиляє БД. `resource_statistics` — представлення, а не додаткова таблиця. `CHECK` забороняє термін завершення раніше відкриття. Демонстраційні дані відокремлені від схеми.
+База: `faculty_software`. `resource_statistics` ранжує ПО за кількістю запусків і показує різних користувачів та тривалість. Зовнішні ключі забороняють використання без доступу, CHECK перевіряє термін використання. Схема і початкові дані відокремлені.

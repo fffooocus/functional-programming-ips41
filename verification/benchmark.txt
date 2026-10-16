@@ -1,5 +1,5 @@
-# files=8 bytes=8388608 initial_capabilities=4 repetitions=3
+# order=384 repetitions=3 partial_pivoting=true
 workers,median_seconds,speedup,efficiency
-1,0.670740,1.0000,1.0000
-2,0.399344,1.6796,0.8398
-4,0.228518,2.9352,0.7338
+1,0.340895,1.0000,1.0000
+2,0.273305,1.2473,0.6237
+4,0.362693,0.9399,0.2350

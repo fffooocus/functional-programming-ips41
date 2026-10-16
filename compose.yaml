@@ -3,7 +3,7 @@ services:
     image: mysql:8.4
     environment:
       MYSQL_ROOT_PASSWORD: local-root-password
-      MYSQL_DATABASE: department_resources
+      MYSQL_DATABASE: faculty_software
       MYSQL_USER: department
       MYSQL_PASSWORD: local-student-password
     ports:

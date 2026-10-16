@@ -19,11 +19,11 @@ import Text.Read (readMaybe)
 data MySQL = MySQL { mysqlExecutable :: FilePath, mysqlHost :: String,
                      mysqlPort :: Int, mysqlUser :: String, mysqlDatabase :: String }
   deriving (Show)
-data Resource = Resource { resourceId :: Int, resourceTitle :: T.Text,
+data Resource = Resource { resourceId :: Int, resourceTitle :: T.Text, resourceVersion :: T.Text,
                           resourceType :: T.Text, availableFrom :: T.Text,
                           expiresOn :: T.Text, annotation :: T.Text,
                           resourceAuthors :: T.Text } deriving (Eq, Show)
-data ResourceDraft = ResourceDraft { draftTitle :: T.Text, draftAnnotation :: T.Text,
+data ResourceDraft = ResourceDraft { draftTitle :: T.Text, draftVersion :: T.Text, draftAnnotation :: T.Text,
                                     draftType :: Int, draftTerms :: Int,
                                     draftStart :: String, draftEnd :: Maybe String }
   deriving (Eq, Show)
@@ -47,6 +47,8 @@ instance Validatable ResourceDraft where
     unless (not (T.null (T.strip (draftTitle draft))) && T.length (draftTitle draft) <= 250)
       (Left "Title must contain 1..250 characters")
     unless (not (T.null (T.strip (draftAnnotation draft)))) (Left "Annotation is required")
+    unless (not (T.null (T.strip (draftVersion draft))) && T.length (draftVersion draft) <= 50)
+      (Left "Version must contain 1..50 characters")
     unless (draftType draft > 0 && draftTerms draft > 0) (Left "Type and terms IDs must be positive")
     start <- parseDay (draftStart draft)
     case draftEnd draft of
@@ -73,13 +75,13 @@ instance ResourceStore MySQL where
      "WHERE ra.resource_id=r.id AND INSTR(LOWER(a.name),LOWER(" ++ sqlText needle ++ "))>0)")
   insertResource connection draft = do
     either (ioError . userError) pure (validate draft)
-    rows <- runSQL connection ("INSERT INTO resources(title,annotation,type_id,terms_id,available_from,expires_on) VALUES(" ++
+    rows <- runSQL connection ("INSERT INTO resources(title,version,annotation,type_id,terms_id,available_from,expires_on) VALUES(" ++
                  intercalate "," (draftValues draft) ++ "); SELECT LAST_INSERT_ID();")
     scalarInt rows
   updateResource connection identity draft = do
     either (ioError . userError) pure (validate draft)
     let assignments = zipWith (\column value -> column ++ "=" ++ value)
-          ["title","annotation","type_id","terms_id","available_from","expires_on"] (draftValues draft)
+          ["title","version","annotation","type_id","terms_id","available_from","expires_on"] (draftValues draft)
     rows <- runSQL connection ("UPDATE resources SET " ++ intercalate "," assignments ++
                " WHERE id=" ++ show identity ++ "; SELECT COUNT(*) FROM resources WHERE id=" ++ show identity ++ ";")
     (>0) <$> scalarInt rows
@@ -88,7 +90,7 @@ instance ResourceStore MySQL where
     (>0) <$> scalarInt rows
 
 draftValues :: ResourceDraft -> [String]
-draftValues draft = [sqlValue (draftTitle draft), sqlValue (draftAnnotation draft),
+draftValues draft = [sqlValue (draftTitle draft), sqlValue (draftVersion draft), sqlValue (draftAnnotation draft),
                      sqlValue (draftType draft), sqlValue (draftTerms draft),
                      sqlText (T.pack (draftStart draft)), sqlValue (T.pack <$> draftEnd draft)]
 
@@ -98,13 +100,13 @@ scalarInt _ = ioError (userError "Unexpected numeric result from MySQL")
 
 queryResources :: MySQL -> String -> IO [Resource]
 queryResources connection condition = do
-  rows <- runSQL connection ("SELECT r.id,r.title,t.name,r.available_from,COALESCE(CAST(r.expires_on AS CHAR),'безстроково'),r.annotation," ++
+  rows <- runSQL connection ("SELECT r.id,r.title,r.version,t.name,r.available_from,COALESCE(CAST(r.expires_on AS CHAR),'безстроково'),r.annotation," ++
     "COALESCE((SELECT GROUP_CONCAT(a.name ORDER BY a.name SEPARATOR ', ') FROM resource_authors ra JOIN authors a ON a.id=ra.author_id WHERE ra.resource_id=r.id),'') " ++
     "FROM resources r JOIN resource_types t ON t.id=r.type_id" ++ condition ++ " ORDER BY r.id;")
   mapM parse rows
   where
-    parse [identity,title,kind,start,end,note,authors]
-      | Just n <- readMaybe (T.unpack identity) = pure (Resource n title kind start end note authors)
+    parse [identity,title,version,kind,start,end,note,authors]
+      | Just n <- readMaybe (T.unpack identity) = pure (Resource n title version kind start end note authors)
     parse _ = ioError (userError "Unexpected resource row from MySQL")
 
 loadConfig :: IO MySQL
@@ -116,7 +118,7 @@ loadConfig = do
     Just n | n > 0 && n < 65536 -> pure n
     _ -> ioError (userError "Invalid MYSQL_PORT")
   user <- setting "MYSQL_USER" "department"
-  database <- setting "MYSQL_DATABASE" "department_resources"
+  database <- setting "MYSQL_DATABASE" "faculty_software"
   pure (MySQL executable host port user database)
   where setting key fallback = maybe fallback id <$> lookupEnv key
 
@@ -138,6 +140,6 @@ runSQL connection sql = do
 
 renderResource :: Resource -> T.Text
 renderResource resource = T.intercalate " | "
-  [T.pack (show (resourceId resource)), resourceTitle resource, resourceType resource,
+  [T.pack (show (resourceId resource)), resourceTitle resource, resourceVersion resource, resourceType resource,
    availableFrom resource <> " — " <> expiresOn resource, resourceAuthors resource,
    annotation resource]

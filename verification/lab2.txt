@@ -1,23 +1,25 @@
-$ lab2 pack 1 <temporary-directory>\one.hfar <temporary-directory>\empty.bin <temporary-directory>\one.bin <temporary-directory>\all-bytes.bin <temporary-directory>\українська.txt +RTS -N1 -RTS
-Packed 4 files using 1 workers.
+$ lab2 solve 1 lab2/examples/system.txt +RTS -N1 -RTS
+x1 = 2.000000000000
+x2 = 3.000000000000
+x3 = -1.000000000000
+max_absolute_residual = 0.000000e0
+relative_residual = 0.000000e0
 
-$ lab2 pack 4 <temporary-directory>\four.hfar <temporary-directory>\empty.bin <temporary-directory>\one.bin <temporary-directory>\all-bytes.bin <temporary-directory>\українська.txt +RTS -N4 -RTS
-Packed 4 files using 4 workers.
+$ lab2 solve 4 lab2/examples/system.txt --output lab2/results.txt +RTS -N4 -RTS
+x1 = 2.000000000000
+x2 = 3.000000000000
+x3 = -1.000000000000
+max_absolute_residual = 0.000000e0
+relative_residual = 0.000000e0
 
-$ lab2 list <temporary-directory>\four.hfar
-empty.bin	0 bytes	0 bits
-one.bin	2048 bytes	0 bits
-all-bytes.bin	256 bytes	2048 bits
-українська.txt	60000 bytes	249000 bits
+$ lab2 solve 4 lab2/examples/pivot.txt +RTS -N4 -RTS
+x1 = 1.000000000000
+x2 = 2.000000000000
+max_absolute_residual = 0.000000e0
+relative_residual = 0.000000e0
 
-$ lab2 unpack <temporary-directory>\four.hfar <temporary-directory>\restored
-Restored 4 files; CRC32 verified.
+$ lab2 solve 0 lab2/examples/system.txt
+Expected integer between 1 and 256
 
-$ lab2 unpack <temporary-directory>\four.hfar <temporary-directory>\restored
-lab2.exe: user error (Output already exists: empty.bin)
-
-$ lab2 pack 0 <temporary-directory>\bad.hfar <temporary-directory>\empty.bin <temporary-directory>\one.bin <temporary-directory>\all-bytes.bin <temporary-directory>\українська.txt
-Worker count must be between 1 and 256
-
-$ lab2 unpack <temporary-directory>\corrupt.hfar <temporary-directory>\bad-output
-lab2.exe: user error (CRC32 mismatch)
+$ lab2 solve 2 <temporary-directory>\singular.txt
+SingularSystem 2

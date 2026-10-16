@@ -1,0 +1,5 @@
+x1 = 2.000000000000
+x2 = 3.000000000000
+x3 = -1.000000000000
+max_absolute_residual = 0.000000e0
+relative_residual = 0.000000e0

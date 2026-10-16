@@ -4,9 +4,6 @@ dist-newstyle/
 *.hi
 *.o
 *.exe
-*.hfar
 .env
-lab2/benchmark-data/
-lab2/restored/
 submission.zip
 node_modules/

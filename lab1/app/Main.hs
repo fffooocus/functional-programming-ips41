@@ -25,13 +25,13 @@ application = do
   case args of
     ["list"] -> listResources config >>= mapM_ (TIO.putStrLn . renderResource)
     ["search",needle] -> searchResources config (T.pack needle) >>= mapM_ (TIO.putStrLn . renderResource)
-    ["add",title,note,kind,terms,start,end] -> do
-      draft <- makeDraft title note kind terms start end
+    ["add",title,version,note,kind,terms,start,end] -> do
+      draft <- makeDraft title version note kind terms start end
       identity <- insertResource config draft
       putStrLn ("Created resource " ++ show identity)
-    ["update",rawId,title,note,kind,terms,start,end] -> do
+    ["update",rawId,title,version,note,kind,terms,start,end] -> do
       identity <- positive rawId
-      draft <- makeDraft title note kind terms start end
+      draft <- makeDraft title version note kind terms start end
       found <- updateResource config identity draft
       unless found (die "Resource not found")
       putStrLn "Resource updated"
@@ -86,8 +86,8 @@ application = do
       mutation config ("INSERT INTO usage_events(resource_id,user_id,duration_seconds) VALUES(" ++
                        show resource ++ "," ++ show user ++ "," ++ show duration ++ ");")
     _ -> die (unlines ["Usage: lab1 COMMAND", "  list | search TEXT | stats | catalog | details ID",
-      "  add TITLE ANNOTATION TYPE_ID TERMS_ID YYYY-MM-DD END_OR_-",
-      "  update ID TITLE ANNOTATION TYPE_ID TERMS_ID YYYY-MM-DD END_OR_-",
+      "  add TITLE VERSION ANNOTATION TYPE_ID TERMS_ID YYYY-MM-DD END_OR_-",
+      "  update ID TITLE VERSION ANNOTATION TYPE_ID TERMS_ID YYYY-MM-DD END_OR_-",
       "  delete ID | author-add NAME | type-add NAME | purpose-add NAME",
       "  terms-add NAME CONDITIONS | user-add NAME GROUP LOGIN",
       "  link-author RESOURCE AUTHOR | link-purpose RESOURCE PURPOSE",
@@ -101,11 +101,11 @@ positive raw = case readMaybe raw of
   Just value | value > 0 -> pure value
   _ -> die "Expected positive integer"
 
-makeDraft :: String -> String -> String -> String -> String -> String -> IO ResourceDraft
-makeDraft title note kind terms start end = do
+makeDraft :: String -> String -> String -> String -> String -> String -> String -> IO ResourceDraft
+makeDraft title version note kind terms start end = do
   typeId <- positive kind
   termsId <- positive terms
-  pure (ResourceDraft (T.pack title) (T.pack note) typeId termsId start (if end == "-" then Nothing else Just end))
+  pure (ResourceDraft (T.pack title) (T.pack version) (T.pack note) typeId termsId start (if end == "-" then Nothing else Just end))
 
 table :: MySQL -> String -> IO ()
 table config sql = runSQL config sql >>= mapM_ (TIO.putStrLn . T.intercalate " | ")

@@ -1,80 +1,66 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
-import Archive
-import Control.Concurrent (getNumCapabilities, setNumCapabilities)
+import Control.Concurrent (setNumCapabilities)
 import Control.DeepSeq (force)
 import Control.Exception (evaluate)
 import Control.Monad (forM, forM_, replicateM, unless)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as BL
 import Data.List (sort)
+import Gaussian
 import GHC.Clock (getMonotonicTimeNSec)
-import GHC.IO.Encoding (setLocaleEncoding)
-import Huffman
 import System.Environment (getArgs)
-import qualified System.Directory
 import System.Exit (die)
 import System.Mem (performGC)
-import System.IO (hSetEncoding, stdout, stderr, utf8)
 import Text.Printf (printf)
 import Text.Read (readMaybe)
-import WorkerPool
 
-compress :: Int -> [(FilePath,BS.ByteString)] -> IO [Entry]
-compress count = parallelMap count (\(name,bytes) -> Entry name (encode bytes))
+positive :: Int -> String -> IO Int
+positive limit value = case readMaybe value of
+  Just n | n > 0 && n <= limit -> pure n
+  _ -> die ("Expected integer between 1 and " ++ show limit)
 
-positive :: String -> IO Int
-positive value = case readMaybe value of
-  Just n | n > 0 && n <= 256 -> pure n
-  _ -> die "Worker count must be between 1 and 256"
+solutionText :: LinearSystem -> [Double] -> String
+solutionText system values = unlines
+  ([printf "x%d = %.12g" i value | (i,value) <- zip [1::Int ..] values] ++
+   [printf "max_absolute_residual = %.6e" (residual system values),
+    printf "relative_residual = %.6e" (relativeResidual system values)])
 
 main :: IO ()
 main = do
-  setLocaleEncoding utf8
-  mapM_ (`hSetEncoding` utf8) [stdout,stderr]
   args <- getArgs
   case args of
-    "pack":n:target:paths -> do
-      count <- positive n
-      inputs <- loadFiles paths
-      outputExists <- doesFileExist' target
-      unless (not outputExists) (die "Archive already exists")
-      entries <- compress count inputs
-      BL.writeFile target (packArchive entries)
-      printf "Packed %d files using %d workers.\n" (length entries) count
-    ["unpack",source,target] -> do
-      bytes <- BL.readFile source
-      entries <- either die pure (unpackArchive bytes)
-      extractArchive target entries
-      printf "Restored %d files; CRC32 verified.\n" (length entries)
-    ["list",source] -> do
-      bytes <- BL.readFile source
-      entries <- either die pure (unpackArchive bytes)
-      forM_ entries $ \(Entry name item) -> printf "%s\t%d bytes\t%d bits\n" name (originalSize item) (bitLength item)
-    "benchmark":maxCount:paths -> do
-      count <- positive maxCount
-      inputs <- loadFiles paths >>= evaluate . force
-      available <- getNumCapabilities
-      printf "# files=%d bytes=%d initial_capabilities=%d repetitions=3\n" (length inputs) (sum (map (BS.length . snd) inputs)) available
-      _ <- compress 1 inputs -- warm-up, excluded
-      let counts = filter (<=count) [1,2,4,8,16,32,64,128,256]
-      measurements <- forM counts $ \workers -> do
+    ["solve",rawWorkers,file] -> run rawWorkers file Nothing
+    ["solve",rawWorkers,file,"--output",destination] -> run rawWorkers file (Just destination)
+    ["benchmark",rawSize,rawWorkers] -> do
+      n <- positive 2000 rawSize
+      count <- positive 256 rawWorkers
+      system <- evaluate (force (generateSystem n))
+      _ <- solveParallel 1 system >>= evaluate . force
+      printf "# order=%d repetitions=3 partial_pivoting=true\n" n
+      measurements <- forM (filter (<=count) [1,2,4,8,16,32,64,128,256]) $ \workers -> do
         setNumCapabilities workers
         samples <- replicateM 3 $ do
           performGC
           start <- getMonotonicTimeNSec
-          result <- compress workers inputs
+          result <- solveParallel workers system >>= evaluate . force
           stop <- getMonotonicTimeNSec
-          forM_ (zip inputs result) $ \((_,original), Entry _ item) ->
-            unless (decode item == Right original) (die "Benchmark round-trip mismatch")
-          pure (fromIntegral (stop-start) / 1e9 :: Double)
-        pure (workers, sort samples !! 1)
+          values <- either (die . show) pure result
+          unless (relativeResidual system values < 1e-10) (die "Residual check failed")
+          unless (maximum (zipWith (\a b -> abs (a-b)) values (expectedSolution n)) < 1e-8)
+            (die "Known-solution check failed")
+          pure (fromIntegral (stop-start)/1e9 :: Double)
+        pure (workers,sort samples !! 1)
       putStrLn "workers,median_seconds,speedup,efficiency"
       let baseline = snd (head measurements)
       forM_ measurements $ \(workers,seconds) ->
         printf "%d,%.6f,%.4f,%.4f\n" workers seconds (baseline/seconds) (baseline/seconds/fromIntegral workers)
-    _ -> die "Usage: lab2 pack WORKERS ARCHIVE FILE... | unpack ARCHIVE DIR | list ARCHIVE | benchmark MAX_WORKERS FILE...\nCompile with -O2 -threaded -rtsopts; run with +RTS -N4 -RTS."
-
-doesFileExist' :: FilePath -> IO Bool
-doesFileExist' = System.Directory.doesPathExist
+    _ -> die "Usage: lab2 solve WORKERS MATRIX.txt [--output RESULT.txt] | benchmark SIZE MAX_WORKERS\nCompile with -O2 -threaded -rtsopts; run with +RTS -N4 -RTS."
+  where
+    run rawWorkers file destination = do
+      workers <- positive 256 rawWorkers
+      input <- readFile file
+      system <- either die pure (parseSystem input)
+      result <- solveParallel workers system
+      values <- either (die . show) pure result
+      let output = solutionText system values
+      putStr output
+      maybe (pure ()) (\target -> writeFile target output) destination

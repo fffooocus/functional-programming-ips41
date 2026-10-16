@@ -1,13 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 module TextAnalysis
   ( Character(..), WordToken(..), Punctuation(..), Element(..)
-  , Sentence(..), Document(..), Finding(..), parseDocument, normalizeSpaces
+  , Sentence(..), Document(..), parseDocument, normalizeSpaces
   , sentenceWords, analyze, renderAnalysis
   ) where
 
 import Data.Char (isAlpha, isDigit, isSpace)
-import Data.List (foldl', sortOn)
-import qualified Data.Map.Strict as M
+import Data.List (foldl')
 import qualified Data.Set as S
 import qualified Data.Text as T
 
@@ -19,8 +18,6 @@ data Element = WordElement WordToken | PunctuationElement Punctuation
 data Sentence = Sentence { sentenceText :: T.Text, elements :: [Element] }
   deriving (Eq, Show)
 newtype Document = Document [Sentence] deriving (Eq, Show)
-data Finding = Finding { commonWord :: WordToken, sentenceNumbers :: [Int] }
-  deriving (Eq, Show)
 
 normalizeSpaces :: T.Text -> T.Text
 normalizeSpaces = T.unwords . T.words
@@ -63,24 +60,24 @@ parseDocument input = Document (map make (split [] [] (T.unpack (normalizeSpaces
 sentenceWords :: Sentence -> [WordToken]
 sentenceWords sentence = [word | WordElement word <- elements sentence]
 
--- A word contributes once per sentence, irrespective of repetitions inside it.
-analyze :: Document -> (Int, [Finding])
-analyze (Document sentences) =
-  let add index sentence acc = foldl' (\m word -> M.insertWith (++) word [index] m)
-                                    acc (S.toList (S.fromList (sentenceWords sentence)))
-      occurrences = foldl' (\m (i,s) -> add i s m) M.empty (zip [1..] sentences)
-      maximumCount = maximum (0 : map length (M.elems occurrences))
-      findings = [Finding word (reverse indices) | (word, indices) <- M.toAscList occurrences,
-                                                    length indices == maximumCount]
-  in (maximumCount, sortOn commonWord findings)
+-- Distinct words from the first sentence absent from every later sentence.
+analyze :: Document -> [WordToken]
+analyze (Document []) = []
+analyze (Document (first:rest)) =
+  let elsewhere = S.fromList (concatMap sentenceWords rest)
+      add (seen,answer) word
+        | S.member word elsewhere || S.member word seen = (seen,answer)
+        | otherwise = (S.insert word seen,word:answer)
+  in reverse (snd (foldl' add (S.empty,[]) (sentenceWords first)))
 
 renderAnalysis :: Document -> T.Text
 renderAnalysis document@(Document sentences) =
-  let (count, findings) = analyze document
+  let findings = analyze document
       showT = T.pack . show
-      heading = ["Речень: " <> showT (length sentences),
-                 "Найбільша кількість речень зі спільним словом: " <> showT count]
-      rows = [word <> " — речення " <> T.intercalate ", " (map showT indices)
-             | Finding (WordToken word) indices <- findings]
+      heading = ["Речень: " <> showT (length sentences)]
+      rows = case findings of
+        [] -> ["Слова першого речення, якого немає в інших, не знайдено."]
+        WordToken word:_ -> ["Слово першого речення, якого немає в інших: " <> word,
+          "Усі відповідні слова: " <> T.intercalate ", " [w | WordToken w <- findings]]
       source = [showT i <> ". " <> sentenceText s | (i,s) <- zip [1 :: Int ..] sentences]
   in T.unlines (heading ++ rows ++ ["", "Нормалізований текст:"] ++ source)

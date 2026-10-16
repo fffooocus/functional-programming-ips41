@@ -1,7 +1,7 @@
 $ lab1 list
-1 | Haskell: GHC User Guide | Документація | 2026-09-01 — безстроково | Haskell.org | Типи, класи типів, компіляція та паралельне виконання програм.
-2 | MySQL 8.4 Reference Manual | Документація | 2026-09-01 — безстроково | Oracle | Реляційна модель, SQL, індекси, транзакції та зовнішні ключі.
-3 | Приклади функціонального програмування | Приклад програми | 2026-09-01 — 2027-06-30 | Левківський Євгеній Сергійович | Приклади чистих функцій та обробки тексту на Haskell.
+1 | GHC | 9.6.7 | Компілятор | 2026-09-01 — безстроково | Haskell.org | Компілятор Haskell із підтримкою багатопотокового виконання.
+2 | MySQL Community Server | 8.4.6 | Система керування базами даних | 2026-09-01 — безстроково | Oracle | Сервер реляційної БД для лабораторних робіт факультету.
+3 | Навчальний аналізатор тексту | 1.0.0 | Навчальна програма | 2026-09-01 — 2027-06-30 | Левківський Євгеній Сергійович | Програма обробки українського тексту на Haskell.
 
 $ lab1 catalog
 authors
@@ -9,9 +9,9 @@ authors
 2 | Oracle
 3 | Левківський Євгеній Сергійович
 resource_types
-1 | Документація
-2 | Навчальний посібник
-3 | Приклад програми
+1 | Компілятор
+2 | Система керування базами даних
+3 | Навчальна програма
 purposes
 1 | Самостійне навчання
 2 | Лабораторні роботи
@@ -22,9 +22,8 @@ usage_terms
 users
 1 | Левківський Євгеній Сергійович | ІПС-41 | student
 
-$ lab1 search Haskell
-1 | Haskell: GHC User Guide | Документація | 2026-09-01 — безстроково | Haskell.org | Типи, класи типів, компіляція та паралельне виконання програм.
-3 | Приклади функціонального програмування | Приклад програми | 2026-09-01 — 2027-06-30 | Левківський Євгеній Сергійович | Приклади чистих функцій та обробки тексту на Haskell.
+$ lab1 search GHC
+1 | GHC | 9.6.7 | Компілятор | 2026-09-01 — безстроково | Haskell.org | Компілятор Haskell із підтримкою багатопотокового виконання.
 
 $ lab1 details 1
 resource_authors
@@ -33,41 +32,41 @@ resource_purposes
 1 | 1
 1 | 2
 resource_urls
-1 | 1 | https://downloads.haskell.org/ghc/9.6.7/docs/users_guide/
+1 | 1 | https://downloads.haskell.org/ghc/9.6.7/ghc-9.6.7-x86_64-unknown-mingw32.tar.xz
 access_grants
-1 | 1 | 2026-10-16 13:41:01
+1 | 1 | 2026-10-16 14:00:48
 usage_events
 1 | 1 | 1 | 2026-10-01 10:00:00 | 300
 2 | 1 | 1 | 2026-10-02 10:00:00 | 180
 
 $ lab1 stats
-1 | Haskell: GHC User Guide | 2 | 1 | 480
-2 | MySQL 8.4 Reference Manual | 1 | 1 | 240
-3 | Приклади функціонального програмування | 0 | 0 | 0
+1 | GHC | 2 | 1 | 480
+2 | MySQL Community Server | 1 | 1 | 240
+3 | Навчальний аналізатор тексту | 0 | 0 | 0
 
-$ lab1 add Перевірка ' SQL; -- Тест	табуляції
+$ lab1 add Перевірка ' SQL; -- 1.0 Тест	табуляції
 та нового рядка 1 1 2026-10-01 -
-Created resource 10
+Created resource 4
 
 $ lab1 search Перевірка ' SQL; --
-10 | Перевірка ' SQL; -- | Документація | 2026-10-01 — безстроково |  | Тест	табуляції
+4 | Перевірка ' SQL; -- | 1.0 | Компілятор | 2026-10-01 — безстроково |  | Тест	табуляції
 та нового рядка
 
 $ lab1 search ' OR 1=1 --
 
-$ lab1 update 10 Оновлений ресурс Оновлена анотація 2 2 2026-10-01 2027-06-30
+$ lab1 update 4 Оновлена програма 2.0 Оновлена анотація 2 2 2026-10-01 2027-06-30
 Resource updated
 
-$ lab1 search Оновлений ресурс
-10 | Оновлений ресурс | Навчальний посібник | 2026-10-01 — 2027-06-30 |  | Оновлена анотація
+$ lab1 search Оновлена програма
+4 | Оновлена програма | 2.0 | Система керування базами даних | 2026-10-01 — 2027-06-30 |  | Оновлена анотація
 
-$ lab1 link-author 10 3
+$ lab1 link-author 4 3
 Saved
 
-$ lab1 link-purpose 10 2
+$ lab1 link-purpose 4 2
 Saved
 
-$ lab1 url-add 10 https://example.org/resource
+$ lab1 url-add 4 https://example.org/distribution.zip
 Saved
 
 $ lab1 edit authors 3 name Левківський Євгеній Сергійович
@@ -76,34 +75,26 @@ Saved
 $ lab1 edit authors;DROP TABLE users 3 name bad
 Unsupported table or field
 
-$ lab1 grant 10 1
+$ lab1 grant 4 1
 Saved
 
-$ lab1 visit 10 1 90
+$ lab1 visit 4 1 90
 Saved
 
 $ lab1 stats
-1 | Haskell: GHC User Guide | 2 | 1 | 480
-2 | MySQL 8.4 Reference Manual | 1 | 1 | 240
-10 | Оновлений ресурс | 1 | 1 | 90
-3 | Приклади функціонального програмування | 0 | 0 | 0
+1 | GHC | 2 | 1 | 480
+2 | MySQL Community Server | 1 | 1 | 240
+4 | Оновлена програма | 1 | 1 | 90
+3 | Навчальний аналізатор тексту | 0 | 0 | 0
 
-$ lab1 add Bad Bad 1 1 2026-02-30 -
+$ lab1 add Bad 1.0 Bad 1 1 2026-02-30 -
 user error (Expected date YYYY-MM-DD)
 
-$ lab1 add Bad FK Bad 999999 1 2026-10-01 -
-user error (MySQL: ERROR 1452 (23000) at line 2: Cannot add or update a child row: a foreign key constraint fails (`department_resources`.`resources`, CONSTRAINT `fk_resource_type` FOREIGN KEY (`type_id`) REFERENCES `resource_types` (`id`))
+$ lab1 add Bad FK 1.0 Bad 999999 1 2026-10-01 -
+user error (MySQL: ERROR 1452 (23000) at line 2: Cannot add or update a child row: a foreign key constraint fails (`faculty_software`.`resources`, CONSTRAINT `fk_resource_type` FOREIGN KEY (`type_id`) REFERENCES `resource_types` (`id`))
 )
 
-$ lab1 update 999999 Missing Missing 1 1 2026-10-01 -
-Resource not found
-
-$ lab1 delete 10
+$ lab1 delete 4
 Resource deleted
 
-$ lab1 search Оновлений ресурс
-
-$ lab1 stats
-1 | Haskell: GHC User Guide | 2 | 1 | 480
-2 | MySQL 8.4 Reference Manual | 1 | 1 | 240
-3 | Приклади функціонального програмування | 0 | 0 | 0
+$ lab1 search Оновлена програма

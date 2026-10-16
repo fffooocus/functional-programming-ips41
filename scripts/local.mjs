@@ -52,7 +52,7 @@ async function start() {
 }
 
 if (command === 'stop') {
-  execute(path.join(mysqlRoot, 'bin', 'mysqladmin.exe'), ['--no-defaults', '--protocol=TCP', '-h127.0.0.1', '-P3307', '-uroot', 'shutdown']);
+  if (await connected()) execute(path.join(mysqlRoot, 'bin', 'mysqladmin.exe'), ['--no-defaults', '--protocol=TCP', '-h127.0.0.1', '-P3307', '-uroot', 'shutdown']);
 } else {
   await start();
   if (command === 'start') console.log('MySQL ready at 127.0.0.1:3307.');
@@ -62,6 +62,7 @@ if (command === 'stop') {
     execute(path.join(root, '.build', 'lab1.exe'), ['list']);
     execute(path.join(root, '.build', 'lab1.exe'), ['stats']);
     execute(path.join(root, '.build', 'lab3.exe'), ['lab3/examples/textbook.txt']);
+    execute(path.join(root, '.build', 'lab2.exe'), ['solve','4','lab2/examples/system.txt','+RTS','-N4','-RTS']);
     console.log('Lab 2: node scripts/benchmark.mjs');
   } else throw new Error('Usage: node scripts/local.mjs start|stop|demo|verify|lab1 [ARGS...]');
 }

@@ -1,0 +1,5 @@
+# N, followed by N rows: a_i1 ... a_iN b_i
+3
+2 1 -1 8
+-3 -1 2 -11
+-2 1 2 -3
